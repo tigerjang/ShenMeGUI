@@ -8,8 +8,35 @@ if 'YODA_CONFIG' not in os.environ:
 
 from shenmeGUI import App
 
+class App:
+    N = '233'
+    def __init__(self):
+        pass
 
-app = App()
+
+class HHH(object):
+    def onload(self, callback):
+        return callback
+
+
+class TestApp(App):
+    aaa = App.N
+    ui = HHH()
+    ui <= '123'
+
+    def __init__(self):
+        App.__init__(self)
+        pass
+
+    @ui.onload
+    def on_load(self):
+        pass
+
+    # @App.on_load
+    # def on_load(self):
+    #     pass
+
+app = TestApp()
 app.run()
 
 
