@@ -4,15 +4,16 @@ from ..utils import GetApplicationPath, ExceptHook
 from cefpython3 import cefpython
 from .cef import CEFBackend
 import sys
+from ..bindings import BindingTypes
 
 
 class MainWindow(QtGui.QMainWindow):
     mainFrame = None
 
-    def __init__(self):
+    def __init__(self, url='about:blank'):
         super(MainWindow, self).__init__(None)
         self.createMenu()
-        self.mainFrame = MainFrame(self)
+        self.mainFrame = MainFrame(self, url=url)
         self.setCentralWidget(self.mainFrame)
         self.resize(1024, 768)
         self.setWindowTitle('PyQT CEF 3 example')
@@ -35,14 +36,15 @@ class MainWindow(QtGui.QMainWindow):
 class MainFrame(QtGui.QWidget):
     browser = None
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, url='about:blank'):
         super(MainFrame, self).__init__(parent)
         windowInfo = cefpython.WindowInfo()
         windowInfo.SetAsChild(int(self.winId()))
         self.browser = cefpython.CreateBrowserSync(windowInfo,
                                                    browserSettings={},
                                                    # navigateUrl=GetApplicationPath("file:///E:/Work/MyProjects/3D_Project/temp-plot.html"))
-                                                   navigateUrl=GetApplicationPath("http://127.0.0.1:5000/multi_views"))
+                                                   # navigateUrl=GetApplicationPath("http://127.0.0.1:5000/multi_views"))
+                                                   navigateUrl=GetApplicationPath(url))
 
         self.show()
 
@@ -80,13 +82,23 @@ class _QtApp(QtGui.QApplication):
 
 
 class CEFQtBackend(CEFBackend):
-    def __init__(self):
+    def __init__(self, init_page='about:blank'):
         print("[CEFQtBackend] PyQt version: %s" % QtCore.PYQT_VERSION_STR)
         print("[CEFQtBackend] QtCore version: %s" % QtCore.qVersion())
         CEFBackend.__init__(self)
 
         self.qt_app = _QtApp(sys.argv)
-        self.mainWindow = MainWindow()
+        self.mainWindow = MainWindow(url=init_page)
+
+    # def bind(self, b):
+    #     pass
+
+    def bind_all(self, bd_list):
+        jsBindings = cefpython.JavascriptBindings(bindToFrames=False, bindToPopups=True)
+        for bd in bd_list:
+            if bd.type == BindingTypes.JSFunction:
+                jsBindings.SetFunction(bd.dest, bd.src)
+        self.mainWindow.mainFrame.browser.SetJavascriptBindings(jsBindings)  #TODO
 
     def serve(self, *args, **kw):
         self.mainWindow.show()
@@ -107,4 +119,11 @@ class CEFQtBackend(CEFBackend):
 
     def __del__(self):
         self.on_stop()  # TODO: Need???
+
+    def open_local_dir(self, start_dir=None):
+        if start_dir:
+            _dir = QtGui.QFileDialog.getExistingDirectory(directory=QtCore.QString(start_dir))
+        else:
+            _dir = QtGui.QFileDialog.getExistingDirectory()  # TODO: remenber Default dir
+        return unicode(_dir.toUtf8(), 'utf-8', 'ignore')
 

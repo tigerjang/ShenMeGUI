@@ -7,34 +7,49 @@ if 'YODA_CONFIG' not in os.environ:
     os.environ['YODA_CONFIG'] = r'E:\Work\Yoda-master\test_config.ini'
 
 from shenmeGUI import App
-
-class App:
-    N = '233'
-    def __init__(self):
-        pass
-
-
-class HHH(object):
-    def onload(self, callback):
-        return callback
-
-
+#
+#
+# class disc(object):
+#     def __init__(self):
+#         pass
+#
+#     def __get__(self, instance, owner):
+#         print instance, owner
+#         def foo(fff):
+#             print fff.func_name
+#             return fff
+#         return foo
+#
+#
+#
+# class App:
+#     Bind2Client = disc()
+#     _bindings = {}
+#     def __init__(self):
+#         pass
+#
+#     @classmethod
+#     def hhh(cls, func):
+#         print cls
+#         print func.func_name
+#         if cls not in cls._bindings:
+#             cls._bindings[cls] = []
+#         cls._bindings[cls].append(func.func_name)
+#         setattr(cls, func.func_name, func)
+#         return func
+#
 class TestApp(App):
-    aaa = App.N
-    ui = HHH()
-    ui <= '123'
-
+    init_page = 'https://www.baidu.com'
     def __init__(self):
         App.__init__(self)
         pass
 
-    @ui.onload
-    def on_load(self):
-        pass
+@TestApp.bind2client
+def py_print(self, *args, **kw):
+    print self
+    print args
+    print kw
 
-    # @App.on_load
-    # def on_load(self):
-    #     pass
 
 app = TestApp()
 app.run()

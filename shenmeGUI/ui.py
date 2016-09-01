@@ -14,7 +14,7 @@ class Selector(object):
         return None
 
     def by_id(self, id):
-        if id in self._id_dict
+        if id in self._id_dict:
             return self._id_dict[id]
         else:
             raise KeyError('No id: %s in Dom of root %s' % (id, self._root_node.__repr__()))
