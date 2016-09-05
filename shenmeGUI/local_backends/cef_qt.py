@@ -38,8 +38,19 @@ class MainFrame(QtGui.QWidget):
 
     def __init__(self, parent=None, url='about:blank'):
         super(MainFrame, self).__init__(parent)
+        if 'win' in sys.platform:
+            self._platform = 'w'
+        elif 'linux' in sys.platform:
+            self._platform = 'l'
+
         windowInfo = cefpython.WindowInfo()
-        windowInfo.SetAsChild(int(self.winId()))
+
+        if self._platform == 'l':
+            gtkPlugPtr = cefpython.WindowUtils.gtk_plug_new(int(self.winId()))
+            windowInfo.SetAsChild(gtkPlugPtr)
+        else:
+            windowInfo.SetAsChild(int(self.winId()))
+
         self.browser = cefpython.CreateBrowserSync(windowInfo,
                                                    browserSettings={},
                                                    # navigateUrl=GetApplicationPath("file:///E:/Work/MyProjects/3D_Project/temp-plot.html"))
@@ -49,10 +60,12 @@ class MainFrame(QtGui.QWidget):
         self.show()
 
     def moveEvent(self, event):
-        cefpython.WindowUtils.OnSize(int(self.winId()), 0, 0, 0)
+        if self._platform != 'l':
+            cefpython.WindowUtils.OnSize(int(self.winId()), 0, 0, 0)
 
     def resizeEvent(self, event):
-        cefpython.WindowUtils.OnSize(int(self.winId()), 0, 0, 0)
+        if self._platform != 'l':
+            cefpython.WindowUtils.OnSize(int(self.winId()), 0, 0, 0)
 
 
 class _QtApp(QtGui.QApplication):
