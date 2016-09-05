@@ -6,6 +6,15 @@ from .cef import CEFBackend
 import sys
 from ..bindings import BindingTypes
 
+if 'win' in sys.platform:
+    _platform = 'w'
+elif 'linux' in sys.platform:
+    _platform = 'l'
+
+if _platform == 'w':
+    _frame_widget = QtGui.QWidget
+elif _platform == 'l':
+    _frame_widget = QtGui.QX11EmbedContainer
 
 class MainWindow(QtGui.QMainWindow):
     mainFrame = None
@@ -27,25 +36,21 @@ class MainWindow(QtGui.QMainWindow):
         aboutmenu = menubar.addMenu("&About")
 
     def focusInEvent(self, event):
-        cefpython.WindowUtils.OnSetFocus(int(self.centralWidget().winId()), 0, 0, 0)
+        if _platform != 'l':
+            cefpython.WindowUtils.OnSetFocus(int(self.centralWidget().winId()), 0, 0, 0)
 
     def closeEvent(self, event):
         self.mainFrame.browser.CloseBrowser()
 
 
-class MainFrame(QtGui.QWidget):
+class MainFrame(_frame_widget):
     browser = None
+    plug = None
 
     def __init__(self, parent=None, url='about:blank'):
         super(MainFrame, self).__init__(parent)
-        if 'win' in sys.platform:
-            self._platform = 'w'
-        elif 'linux' in sys.platform:
-            self._platform = 'l'
 
-
-
-        if self._platform == 'l':
+        if _platform == 'l':
             gtkPlugPtr = cefpython.WindowUtils.gtk_plug_new(int(self.winId()))
             windowInfo = cefpython.WindowInfo()
             windowInfo.SetAsChild(gtkPlugPtr)
@@ -59,16 +64,16 @@ class MainFrame(QtGui.QWidget):
                                                    # navigateUrl=GetApplicationPath("http://127.0.0.1:5000/multi_views"))
                                                    navigateUrl=GetApplicationPath(url))
 
-        if self._platform == 'l':
+        if _platform == 'l':
             cefpython.WindowUtils.gtk_widget_show(gtkPlugPtr)
         self.show()
 
     def moveEvent(self, event):
-        if self._platform != 'l':
+        if _platform != 'l':
             cefpython.WindowUtils.OnSize(int(self.winId()), 0, 0, 0)
 
     def resizeEvent(self, event):
-        if self._platform != 'l':
+        if _platform != 'l':
             cefpython.WindowUtils.OnSize(int(self.winId()), 0, 0, 0)
 
 
