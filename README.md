@@ -1,2 +1,3 @@
 # ShenMeGUI
 A Stupid GUI Framework
+Work in progress ...
