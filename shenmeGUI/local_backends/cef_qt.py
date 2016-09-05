@@ -62,7 +62,7 @@ class MainFrame(_frame_widget):
                                                    browserSettings={},
                                                    # navigateUrl=GetApplicationPath("file:///E:/Work/MyProjects/3D_Project/temp-plot.html"))
                                                    # navigateUrl=GetApplicationPath("http://127.0.0.1:5000/multi_views"))
-                                                   navigateUrl=GetApplicationPath(url))
+                                                   navigateUrl='file:///' + GetApplicationPath(url))  # TODO:  Change GetApplicationPath
 
         if _platform == 'l':
             cefpython.WindowUtils.gtk_widget_show(gtkPlugPtr)
