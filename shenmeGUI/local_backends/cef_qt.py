@@ -43,12 +43,14 @@ class MainFrame(QtGui.QWidget):
         elif 'linux' in sys.platform:
             self._platform = 'l'
 
-        windowInfo = cefpython.WindowInfo()
+
 
         if self._platform == 'l':
             gtkPlugPtr = cefpython.WindowUtils.gtk_plug_new(int(self.winId()))
+            windowInfo = cefpython.WindowInfo()
             windowInfo.SetAsChild(gtkPlugPtr)
         else:
+            windowInfo = cefpython.WindowInfo()
             windowInfo.SetAsChild(int(self.winId()))
 
         self.browser = cefpython.CreateBrowserSync(windowInfo,
@@ -57,6 +59,8 @@ class MainFrame(QtGui.QWidget):
                                                    # navigateUrl=GetApplicationPath("http://127.0.0.1:5000/multi_views"))
                                                    navigateUrl=GetApplicationPath(url))
 
+        if self._platform == 'l':
+            cefpython.WindowUtils.gtk_widget_show(gtkPlugPtr)
         self.show()
 
     def moveEvent(self, event):
