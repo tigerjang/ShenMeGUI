@@ -58,11 +58,14 @@ class MainFrame(_frame_widget):
             windowInfo = cefpython.WindowInfo()
             windowInfo.SetAsChild(int(self.winId()))
 
+        if not url.strip().startswith('http'):  # TODO
+            url = url + 'file:///' + GetApplicationPath(url)
+
         self.browser = cefpython.CreateBrowserSync(windowInfo,
                                                    browserSettings={},
                                                    # navigateUrl=GetApplicationPath("file:///E:/Work/MyProjects/3D_Project/temp-plot.html"))
                                                    # navigateUrl=GetApplicationPath("http://127.0.0.1:5000/multi_views"))
-                                                   navigateUrl='file:///' + GetApplicationPath(url))  # TODO:  Change GetApplicationPath
+                                                   navigateUrl=url)  # TODO:  Change GetApplicationPath
 
         if _platform == 'l':
             cefpython.WindowUtils.gtk_widget_show(gtkPlugPtr)
@@ -112,15 +115,21 @@ class CEFQtBackend(CEFBackend):
         self.qt_app = _QtApp(sys.argv)
         self.mainWindow = MainWindow(url=init_page)
 
+        self._jsBindings = cefpython.JavascriptBindings(bindToFrames=False, bindToPopups=True)
+        self.mainWindow.mainFrame.browser.SetJavascriptBindings(self._jsBindings)  # TODO
+
     # def bind(self, b):
     #     pass
 
     def bind_all(self, bd_list):
-        jsBindings = cefpython.JavascriptBindings(bindToFrames=False, bindToPopups=True)
         for bd in bd_list:
             if bd.type == BindingTypes.JSFunction:
-                jsBindings.SetFunction(bd.dest, bd.src)
-        self.mainWindow.mainFrame.browser.SetJavascriptBindings(jsBindings)  #TODO
+                self._jsBindings.SetFunction(bd.dest, bd.src)
+
+    def bind_js(self, func, js_name=None):
+        if js_name is None:
+            js_name = func.func_name
+        self._jsBindings.SetFunction(js_name, func)
 
     def serve(self, *args, **kw):
         self.mainWindow.show()
