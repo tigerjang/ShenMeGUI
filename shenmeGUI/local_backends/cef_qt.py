@@ -59,7 +59,7 @@ class MainFrame(_frame_widget):
             windowInfo.SetAsChild(int(self.winId()))
 
         if not url.strip().startswith('http'):  # TODO
-            url = url + 'file:///' + GetApplicationPath(url)
+            url = 'file:///' + GetApplicationPath(url)
 
         self.browser = cefpython.CreateBrowserSync(windowInfo,
                                                    browserSettings={},
@@ -116,7 +116,7 @@ class CEFQtBackend(CEFBackend):
         self.mainWindow = MainWindow(url=init_page)
 
         self._jsBindings = cefpython.JavascriptBindings(bindToFrames=False, bindToPopups=True)
-        self.mainWindow.mainFrame.browser.SetJavascriptBindings(self._jsBindings)  # TODO
+        # self.mainWindow.mainFrame.browser.SetJavascriptBindings(self._jsBindings)  # TODO  ????????????????????
 
     # def bind(self, b):
     #     pass
@@ -124,7 +124,10 @@ class CEFQtBackend(CEFBackend):
     def bind_all(self, bd_list):
         for bd in bd_list:
             if bd.type == BindingTypes.JSFunction:
+                print bd.dest, bd.src
                 self._jsBindings.SetFunction(bd.dest, bd.src)
+                # self.bind_js()
+        self.mainWindow.mainFrame.browser.SetJavascriptBindings(self._jsBindings)  # TODO  ???????????????
 
     def bind_js(self, func, js_name=None):
         if js_name is None:
